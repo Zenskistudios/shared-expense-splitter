@@ -1,0 +1,11 @@
+{
+  "name": "Shared expense splitter",
+  "version": "0.1.0",
+  "type": "fullstack",
+  "backend": {
+    "port": 8000
+  },
+  "frontend": {
+    "port": 5173
+  }
+}

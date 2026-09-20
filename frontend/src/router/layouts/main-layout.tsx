@@ -1,0 +1,144 @@
+import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Path } from '@/router/paths'
+import {
+  Button,
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider,
+  MenuGroup,
+  Avatar,
+  Divider,
+  useColorMode,
+} from '@chakra-ui/react'
+import { LogOut, User, Settings, Sun, Moon, Anvil } from 'lucide-react'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+
+function getInitials(user: any): string {
+  if (user?.displayName) {
+    const parts = user.displayName.split(' ')
+    const first = parts[0]?.[0] || ''
+    const last = parts[1]?.[0] || ''
+    return (first + last).toUpperCase()
+  }
+  return user?.email?.[0]?.toUpperCase() || 'U'
+}
+
+export function MainLayout() {
+  const { user, isAuthenticated, logout } = useAuth()
+  const { colorMode, toggleColorMode } = useColorMode()
+  const navigate = useNavigate()
+
+  const isDark = colorMode === 'dark'
+
+  const handleLogout = () => {
+    logout()
+    navigate(Path.Login)
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto flex h-14 items-center px-4 sm:px-6 lg:px-8">
+          <Link to={Path.Home} className="flex items-center gap-2 mr-6">
+            <Anvil className="h-5 w-5" />
+            <span className="text-lg font-semibold tracking-tight">Shared expense splitter</span>
+          </Link>
+
+          <div className="flex-1" />
+
+          <div className="flex items-center gap-2">
+            <Tooltip label={isDark ? 'Light mode' : 'Dark mode'}>
+              <IconButton
+                aria-label="Toggle color mode"
+                variant="ghost"
+                size="sm"
+                onClick={toggleColorMode}
+                icon={isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              />
+            </Tooltip>
+
+            {isAuthenticated ? (
+              <Menu>
+                <MenuButton
+                  as={Button}
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                  p={0}
+                  minW="auto"
+                >
+                  <Avatar
+                    size="sm"
+                    name={user?.displayName || user?.email || 'U'}
+                    getInitials={() => getInitials(user)}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup>
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium leading-none">
+                        {user?.displayName || 'User'}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground mt-1">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </MenuGroup>
+                  <MenuDivider />
+                  <MenuItem icon={<User className="h-4 w-4" />}>
+                    Profile
+                  </MenuItem>
+                  <MenuItem icon={<Settings className="h-4 w-4" />}>
+                    Settings
+                  </MenuItem>
+                  <MenuDivider />
+                  <MenuItem icon={<LogOut className="h-4 w-4" />} onClick={handleLogout}>
+                    Sign Out
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" as={Link} to={Path.Login}>
+                  Sign In
+                </Button>
+                <Button size="sm" colorScheme="blue" as={Link} to={Path.Register}>
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Outlet />
+      </main>
+
+      <footer className="border-t">
+        <div className="max-w-7xl mx-auto flex flex-col items-center gap-4 px-4 py-6 sm:flex-row sm:justify-between sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Anvil className="h-4 w-4" />
+            <span>&copy; {new Date().getFullYear()} Shared expense splitter. All rights reserved.</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="link" size="sm" className="text-muted-foreground h-auto p-0" as={Link} to="/terms">
+              Terms
+            </Button>
+            <Divider orientation="vertical" h={4} />
+            <Button variant="link" size="sm" className="text-muted-foreground h-auto p-0" as={Link} to="/privacy">
+              Privacy
+            </Button>
+            <Divider orientation="vertical" h={4} />
+            <Button variant="link" size="sm" className="text-muted-foreground h-auto p-0" as={Link} to="/support">
+              Support
+            </Button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}

@@ -1,0 +1,21 @@
+import { VStack, Divider, SimpleGrid } from '@chakra-ui/react'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { WelcomeHeader } from './components/welcome-header'
+import { QuickStartCard } from './components/quick-start-card'
+import { BackendCard, FrontendCard } from './components/stack-cards'
+
+export default function DashboardPage() {
+  const { user } = useAuth()
+
+  return (
+    <VStack spacing={8} align="stretch">
+      <WelcomeHeader displayName={user?.displayName || user?.email || 'there'} />
+      <Divider />
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} spacing={4}>
+        <QuickStartCard />
+        <BackendCard />
+        <FrontendCard />
+      </SimpleGrid>
+    </VStack>
+  )
+}
